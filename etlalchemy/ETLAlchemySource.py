@@ -327,7 +327,8 @@ class ETLAlchemySource():
                 if data is not None:
                     null = False
                 if data.__class__.__name__ == 'Decimal' or\
-                   data.__class__.__name__ == 'float':
+                   data.__class__.__name__ == 'float' or\
+                   data.__class__.__name__ == 'long':
                     splt = str(data).split(".")
                     if len(splt) == 1:
                         intCount += 1
