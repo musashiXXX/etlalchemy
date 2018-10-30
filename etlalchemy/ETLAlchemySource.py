@@ -298,7 +298,8 @@ class ETLAlchemySource():
 
         elif "NUMERIC" in base_classes\
                 or "FLOAT" in base_classes\
-                or "DECIMAL" in base_classes:
+                or "DECIMAL" in base_classes\
+                or "BIGINTEGER" in base_classes:
             ####################################
             # Check all cleaned_rows to determine
             # if column is decimal or integer
