@@ -50,7 +50,8 @@ class ETLAlchemySource():
                  skip_table_if_empty=False,
                  skip_column_if_empty=False,
                  compress_varchar=False,
-                 log_file=None):
+                 log_file=None,
+                 per_table_buffers={}):
         # TODO: Store unique columns in here, and ADD the unique constraints
         # after data has been migrated, rather than before
         self.unique_columns = []
@@ -59,6 +60,9 @@ class ETLAlchemySource():
         self.logger = logging.getLogger("ETLAlchemySource")
         self.logger.propagate = False
         
+        #Allow specifying of buffer size on a per-table basis when fetching rows from the source
+        self.per_table_buffers = per_table_buffers
+
         for h in list(self.logger.handlers):
             # Clean up any old loggers...(useful during testing w/ multiple
             # log_files)
@@ -1006,6 +1010,9 @@ class ETLAlchemySource():
                 j = 0
                 self.logger.info("Loading all rows into memory...")
                 rows = []
+
+                if T_src.name in self.per_table_buffers:
+                    buffer_size = self.per_table_buffers.get(T_src.name)
 
                 for i in range(1, (cnt / buffer_size) + 1):
                     self.logger.info(
