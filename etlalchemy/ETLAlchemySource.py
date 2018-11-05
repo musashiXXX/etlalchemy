@@ -302,8 +302,7 @@ class ETLAlchemySource():
 
         elif "NUMERIC" in base_classes\
                 or "FLOAT" in base_classes\
-                or "DECIMAL" in base_classes\
-                or "BIGINTEGER" in base_classes:
+                or "DECIMAL" in base_classes:
             ####################################
             # Check all cleaned_rows to determine
             # if column is decimal or integer
@@ -331,8 +330,7 @@ class ETLAlchemySource():
                 if data is not None:
                     null = False
                 if data.__class__.__name__ == 'Decimal' or\
-                   data.__class__.__name__ == 'float' or\
-                   data.__class__.__name__ == 'long':
+                   data.__class__.__name__ == 'float':
                     splt = str(data).split(".")
                     if len(splt) == 1:
                         intCount += 1
