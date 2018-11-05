@@ -21,9 +21,7 @@ def _generate_literal_value_for_csv(value, dialect):
     elif value is None:
         return "NULL"
     elif isinstance(value, bytearray):
-        u = uuid.UUID(bytes_le=str(value))
-        print(u)
-        return str(u)
+        return str(uuid.UUID(bytes_le=str(value)))
     elif isinstance(value, bool):
         return "%s" % int(value)
     elif isinstance(value, (float, int, long)):
