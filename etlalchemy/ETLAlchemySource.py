@@ -21,7 +21,7 @@ from sqlalchemy.engine import reflection
 from sqlalchemy.inspection import inspect
 from sqlalchemy.exc import NoSuchTableError
 from sqlalchemy.types import Text, Numeric, BigInteger, Integer, DateTime, Date, TIMESTAMP, String, BINARY, LargeBinary
-from sqlalchemy.dialects.postgresql import BYTEA
+from sqlalchemy.dialects.postgresql import BYTEA, UUID
 import inspect as ins
 import re
 import csv
@@ -405,6 +405,11 @@ class ETLAlchemySource():
                 "coercing to Boolean'")
             column_copy.type.__class__ = sqlalchemy.types.Boolean
         elif "TYPEENGINE" in base_classes:
+            if self.dst_engine.dialect.name.lower() == "postgresql"\
+                and column.type.__class__.__name__ == "UNIQUEIDENTIFIER":
+                column_copy.type = UUID()
+                self.logger.warning("Found column of type 'UNIQUEIDENTIFIER' -> " +
+                    "coercing to 'UUID'")
             for r in raw_rows:
                 if r[idx] is not None:
                     null = False
