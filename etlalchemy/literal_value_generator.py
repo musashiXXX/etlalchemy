@@ -1,6 +1,7 @@
 import shutil
 import decimal
 import datetime
+import uuid
 # Find the best implementation available on this platform
 try:
     from cStringIO import StringIO
@@ -19,6 +20,10 @@ def _generate_literal_value_for_csv(value, dialect):
             return "\"%s\"" % value
     elif value is None:
         return "NULL"
+    elif isinstance(value, bytearray):
+        u = uuid.UUID(bytes_le=str(value))
+        print(u)
+        return str(u)
     elif isinstance(value, bool):
         return "%s" % int(value)
     elif isinstance(value, (float, int, long)):
