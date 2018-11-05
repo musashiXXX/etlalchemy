@@ -209,13 +209,16 @@ class ETLAlchemySource():
             # Get the VARCHAR size of the column...
             ########################################
             varchar_length = column.type.length
-            if varchar_length == 'max':
-                if self.dst_engine.dialect.name.lower() == "postgresql":
-                    varchar_length = 10485760
-                elif self.dst_engine.dialect.name.lower() == "mssql":
+            # If varchar_length exceeds the maximum size for our target
+            # database, then convert VARCHAR -> TEXT  
+            if self.dst_engine.dialect.name.lower() == "postgresql":
+                if varchar_length == 'max' or varchar_length > 10485760:
+                    varchar_length = 0
+            elif self.dst_engine.dialect.name.lower() == "mssql":
+                if varchar_length == 'max' or varchar_length > 65532:
                     # Note: This isn't always the case for mssql!
-                    # If using utf8, the limit is 21844.
-                    varchar_length = 65532
+                    # If using utf8, the limit is 21844. 
+                    varchar_length = 0
             ##################################
             # Strip collation here ...
             ##################################
