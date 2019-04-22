@@ -263,8 +263,20 @@ class ETLAlchemySource():
             # Get the VARCHAR size of the column...
             ########################################
             varchar_length = column.type.length
-            column_copy.type = String()
-            column_copy.type.length = varchar_length
+            if varchar_length == 'max':
+                varchar_length = 0
+                column_copy.type = Text()
+            elif self.dst_engine.dialect.name.lower() == "postgresql" and varchar_length > 10485760:
+                    varchar_length = 0
+                    column_copy.type = Text()
+            elif self.dst_engine.dialect.name.lower() == "mssql" and varchar_length > 65532:
+                    # Note: This isn't always the case for mssql!
+                    # If using utf8, the limit is 21844. 
+                    varchar_length = 0
+                    column_copy.type = Text()
+            else:
+                column_copy.type = String()
+            	column_copy.type.length = varchar_length
             ##################################
             # Strip collation here ...
             ##################################
@@ -341,6 +353,7 @@ class ETLAlchemySource():
                     null = False
                 if data.__class__.__name__ == 'Decimal' or\
                    data.__class__.__name__ == 'float':
+                    continue # TODO. chamilton 22 April 2019: Skip this part entirely. Not ready to modify/remove/etc. just yet.
                     splt = str(data).split(".")
                     if len(splt) == 1:
                         intCount += 1
@@ -394,7 +407,7 @@ class ETLAlchemySource():
                     column.name +
                     "' is of type 'Decimal', but contains no mantissas " +
                     "> 0. (i.e. 3.00, 2.00, etc..)\n ")
-                if maxDigit > 4294967295:
+                if maxDigit > 4294967295: # TODO. chamilton 22 April 2019: Not sure if this is necessary. 
                     self.logger.warning("Coercing to 'BigInteger'")
                     column_copy.type = BigInteger()
                     # Do conversion...
